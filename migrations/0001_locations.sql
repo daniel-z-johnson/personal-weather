@@ -4,8 +4,8 @@ CREATE TABLE locations (
                        City TEXT NOT NULL,
                        State TEXT NOT NULL DEFAULT '',
                        Country TEXT NOT NULL DEFAULT '',
-                       Latitude TEXT NOT NULL DEFAULT '',
-                       Longitude TEXT NOT NULL DEFAULT ''
+                       Latitude REAL NOT NULL DEFAULT 0.0,
+                       Longitude REAL NOT NULL DEFAULT 0.0
 );
 
 -- +goose Down

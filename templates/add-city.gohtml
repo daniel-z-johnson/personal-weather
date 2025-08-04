@@ -29,7 +29,7 @@
                 <div class="py-4">
                     <button
                             type="submit"
-                            class="w-full py-4 px-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-lg">
+                            class="w-full py-4 px-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold text-lg">
                         Add city
                     </button>
                 </div>
@@ -42,7 +42,19 @@
 
                 {{ range .Locations }}
                     <div class="px-8 py-4 bg-white rounded shadow mt-4">
-                        <h2 class="text-xl font-semibold">{{ .City }}, {{ .State }}, {{ .Country }}</h2>
+                        <form action="/addCity" method="post">
+                            <label for="city" class="text-sm font-semibold text-gray-800">City</label>
+                            <input name="city" id="city" type="text" class="" value="{{ .City}}" />
+                            <label for="state" class="text-sm font-semibold text-gray-800">State</label>
+                            <input name="state" id="state" type="text" class="" value="{{ .State}}" />
+                            <label for="country" class="text-sm font-semibold text-gray-800">Country</label>
+                            <input name="country" id="country" type="text" class="" value="{{ .Country}}" />
+                            <label for="latitude" class="text-sm font-semibold text-gray-800">Latitude</label>
+                            <input name="latitude" id="latitude" type="text" class="" value="{{ .Latitude}}" />
+                            <label for="longitude" class="text-sm font-semibold text-gray-800">Longitude</label>
+                            <input name="longitude" id="longitude" type="text" class="" value="{{ .Longitude}}" />
+                            <button type="submit" class="py-4 px-2 bg-green-600 hover:bg-green-900 text-white rounded font-bold text-lg">Add This One</button>
+                        </form>
                     </div>
                 {{ end }}
 

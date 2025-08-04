@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"log/slog"
 )
 
@@ -21,4 +22,24 @@ func (ws *WeatherService) SaveLocation(city, state, country string, latitude, lo
 	ws.Logger.Info("Location saved successfully",
 		slog.String("city", city), slog.String("state", state), slog.String("country", country))
 	return nil
+}
+
+func (ws *WeatherService) GetLocation(city, state, country string) (*GeoLocation, error) {
+	query := `SELECT latitude, longitude FROM locations WHERE city = ? AND state = ? AND country = ?`
+	row := ws.DB.QueryRow(query, city, state, country)
+	var location GeoLocation
+	location.Name = city
+	location.State = state
+	location.Country = country
+	err := row.Scan(&location.Latitude, &location.Longitude)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ws.Logger.Warn("No location found", slog.String("city", city), slog.String("state", state),
+				slog.String("country", country))
+			return nil, nil
+		}
+		ws.Logger.Error("Failed to get location", slog.String("error", err.Error()))
+		return nil, err
+	}
+	return &location, nil
 }

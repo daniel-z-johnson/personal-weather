@@ -44,9 +44,9 @@ func (ows *OpenWeatherAPI) GetCityCoordinates(city, state, country string) ([]Ge
 	}
 	uri, err := url.Parse(baseGeoLocatorURL)
 	if err != nil {
-		ows.Logger.Error("Failed to parse OpenWeather API URL",
+		ows.Logger.Error("Failed to parse FindCities API URL",
 			slog.String("url", baseGeoLocatorURL), slog.Any("error", err))
-		return nil, fmt.Errorf("failed to parse OpenWeather API URL: %w", err)
+		return nil, fmt.Errorf("failed to parse FindCities API URL: %w", err)
 	}
 	values := uri.Query()
 	values.Set("q", locationValue)
@@ -60,7 +60,7 @@ func (ows *OpenWeatherAPI) GetCityCoordinates(city, state, country string) ([]Ge
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		ows.Logger.Error("Did not get a 200 OK response from OpenWeather API",
+		ows.Logger.Error("Did not get a 200 OK response from FindCities API",
 			slog.String("status", resp.Status))
 		return nil, fmt.Errorf("status code %d Error: %w", resp.StatusCode, err)
 	}

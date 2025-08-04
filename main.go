@@ -31,9 +31,13 @@ func main() {
 	}
 	weatherController.Templates.Main =
 		views.Must(views.ParseFS(templates.FS, logger, "main-layout.gohtml", "main-page.gohtml"))
+	weatherController.Templates.Cities =
+		views.Must(views.ParseFS(templates.FS, logger, "main-layout.gohtml", "add-city.gohtml"))
 
 	r := chi.NewRouter()
 	r.Get("/", weatherController.Main)
+	r.Get("/cities", weatherController.Cities)
+	r.Post("/cities", weatherController.OpenWeather)
 
 	http.ListenAndServe(":1117", r)
 }

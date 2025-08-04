@@ -1,0 +1,52 @@
+{{ define "content" }}
+    <div class="py-12 flex justify-center">
+        <div class="px-8 py-8 bg-white rounded shadow">
+            <form action="/cities" method="post">
+                <div class="py-2">
+                    <label for="city" class="text-sm font-semibold text-gray-800">
+                        City
+                    </label>
+                    <input name="city" id="city" type="text" required
+                           class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded"
+                           value="{{ .Form.City }}"/>
+                </div>
+                <div class="py-2">
+                    <label for="state" class="text-sm font-semibold text-gray-800">
+                        State code (US only)
+                    </label>
+                    <input name="state" id="state" type="text"
+                           class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded"
+                           value="{{ .Form.State }}"/>
+                </div>
+                <div class="py-2">
+                    <label for="country" class="text-sm font-semibold text-gray-800">
+                        Country code (2 letter ISO 3166-1 alpha-2)
+                    </label>
+                    <input name="country" id="country" type="text"
+                           class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded"
+                           value="{{ .Form.Country }}"/>
+                </div>
+                <div class="py-4">
+                    <button
+                            type="submit"
+                            class="w-full py-4 px-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-lg">
+                        Add city
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {{ if .Locations }}
+        <div class="py-12 flex justify-center">
+            <div class="px-8 py-8 bg-white rounded shadow">
+
+                {{ range .Locations }}
+                    <div class="px-8 py-4 bg-white rounded shadow mt-4">
+                        <h2 class="text-xl font-semibold">{{ .City }}, {{ .State }}, {{ .Country }}</h2>
+                    </div>
+                {{ end }}
+
+            </div>
+        </div>
+    {{ end }}
+{{ end }}

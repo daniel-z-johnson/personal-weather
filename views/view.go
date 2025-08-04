@@ -14,14 +14,23 @@ type Template struct {
 	logger       *slog.Logger
 }
 
-func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any) {
-	tpl := t.htmlTemplate
-	tpl = tpl.Funcs(template.FuncMap{})
+func (t Template) Execute(w http.ResponseWriter, r *http.Request, data any, errors ...error) {
+	tpl, err := t.htmlTemplate.Clone()
+	if err != nil {
+		t.logger.Error("Error cloning template", "err", err)
+		http.Error(w, "There was an error executing the template.", http.StatusInternalServerError)
+		return
+	}
+	tpl = tpl.Funcs(template.FuncMap{
+		"errors": func() []error {
+			return errors
+		},
+	})
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	var buf bytes.Buffer
-	err := tpl.Execute(&buf, data)
+	err = tpl.Execute(&buf, data)
 	if err != nil {
-		t.logger.Error("executing template: %v", err)
+		t.logger.Error("executing template: %v", slog.String("error", err.Error()))
 		http.Error(w, "There was an error executing the template", http.StatusInternalServerError)
 		return
 	}
@@ -39,9 +48,11 @@ func Must(t Template, err error) Template {
 
 func ParseFS(fs fs.FS, logger *slog.Logger, patterns ...string) (Template, error) {
 	tpl := template.New(patterns[0])
-	tpl = tpl.Funcs(
-		template.FuncMap{},
-	)
+	tpl = tpl.Funcs(template.FuncMap{
+		"errors": func() []error {
+			return nil
+		},
+	})
 	tpl, err := tpl.ParseFS(fs, patterns...)
 	if err != nil {
 		return Template{}, err

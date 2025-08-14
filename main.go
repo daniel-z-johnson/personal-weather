@@ -36,8 +36,9 @@ func main() {
 	}
 	logger.Info(fmt.Sprintf(conf.String()))
 
-	weatherService := &models.OpenWeatherAPI{Logger: logger, APIKey: conf.WeatherAPI.Key}
-	weatherController, err := controllers.NewWeather(logger, weatherService)
+	weatherAPI := &models.OpenWeatherAPI{Logger: logger, APIKey: conf.WeatherAPI.Key}
+	weatherService := &models.WeatherService{DB: db, Logger: logger}
+	weatherController, err := controllers.NewWeather(logger, weatherAPI, weatherService)
 	if err != nil {
 		// just fail at startup if something goes wrong at this point
 		panic(err)

@@ -1,3 +1,15 @@
 {{ define "content" }}
-    <h1>Main page</h1>
+    {{ if .Locations }}
+        {{ range .Locations}}
+            <div class="">
+                <div class="flex-shrink bg-gray-100 p-4 rounded shadow mb-4">
+                    <div>{{ .City }}</div>
+                    <div>{{ .State }}</div>
+                    <div>{{ .Country }}</div>
+                    <div>{{ .TempF }}</div>
+                    <div>{{ .TempC }}</div>
+                </div>
+            </div>
+        {{ end }}
+    {{end}}
 {{ end }}

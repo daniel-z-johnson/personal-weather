@@ -12,6 +12,17 @@ type WeatherService struct {
 	Logger *slog.Logger
 }
 
+type Location struct {
+	id          int
+	City        string
+	State       string
+	Country     string
+	Latitude    float64
+	Longitude   float64
+	Temperature float64
+	Expires     time.Time
+}
+
 func (ws *WeatherService) SaveLocation(city, state, country string, latitude, longitude float64) error {
 	query := `INSERT INTO locations (city, state, country, latitude, longitude) VALUES (?, ?, ?, ?, ?)`
 	_, err := ws.DB.Exec(query, city, state, country, latitude, longitude)
@@ -73,8 +84,8 @@ func (ws *WeatherService) GetAllExpired() ([]GeoLocation, error) {
 	return locations, nil
 }
 
-func (ws *WeatherService) GetAll() ([]GeoLocation, error) {
-	query := `SELECT city, state, country, latitude, longitude FROM locations`
+func (ws *WeatherService) GetAll() ([]Location, error) {
+	query := `SELECT city, state, country, latitude, longitude, temp  FROM locations`
 	rows, err := ws.DB.Query(query)
 	if err != nil {
 		ws.Logger.Error("Failed to get all locations", slog.String("error", err.Error()))
@@ -82,10 +93,10 @@ func (ws *WeatherService) GetAll() ([]GeoLocation, error) {
 	}
 	defer rows.Close()
 
-	var locations []GeoLocation
+	locations := make([]Location, 0)
 	for rows.Next() {
-		var loc GeoLocation
-		err := rows.Scan(&loc.Name, &loc.State, &loc.Country, &loc.Latitude, &loc.Longitude)
+		var loc Location
+		err := rows.Scan(&loc.City, &loc.State, &loc.Country, &loc.Latitude, &loc.Longitude, &loc.Temperature)
 		if err != nil {
 			ws.Logger.Error("Failed to scan location row", slog.String("error", err.Error()))
 			return nil, err

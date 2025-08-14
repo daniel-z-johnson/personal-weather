@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/daniel-z-johnson/personal-weather/models"
 	"log/slog"
 	"net/http"
 	"strconv"
+
+	"github.com/daniel-z-johnson/personal-weather/models"
 )
 
 type Weather struct {
@@ -26,18 +27,27 @@ type LocationPageData struct {
 	Longitude float64
 }
 
+type LocationTemp struct {
+	City    string
+	State   string
+	Country string
+	TempF   string
+	TempC   string
+}
+
 func NewWeather(logger *slog.Logger, openWeatherAPI *models.OpenWeatherAPI, openWeatherService *models.WeatherService) (*Weather, error) {
 	return &Weather{logger: logger, openWeatherAPI: openWeatherAPI, weatherSerivce: openWeatherService}, nil
 }
 
 func (weather *Weather) Main(w http.ResponseWriter, r *http.Request) {
 	type Data struct {
-		Locations []models.GeoLocation
+		Locations []LocationTemp
+		Errors    []error
 	}
 	expired, err := weather.weatherSerivce.GetAllExpired()
 	if err != nil {
 		weather.logger.Error("Failed to get expired locations", slog.Any("error", err))
-		weather.Templates.Main.Execute(w, r, nil, fmt.Errorf("Server issue try again later"))
+		weather.Templates.Main.Execute(w, r, nil, fmt.Errorf("server issue try again later"))
 		return
 	}
 	for _, v := range expired {
@@ -56,8 +66,24 @@ func (weather *Weather) Main(w http.ResponseWriter, r *http.Request) {
 			continue // skip this location if we can't update it
 		}
 	}
+	allLocations, err := weather.weatherSerivce.GetAll()
+	if err != nil {
+		weather.logger.Error("Failed to get all locations after updating expired", slog.Any("error", err))
+		weather.Templates.Main.Execute(w, r, nil, fmt.Errorf("server issue try again later"))
+		return
+	}
+	locationTemps := make([]LocationTemp, 0)
+	for _, v := range allLocations {
+		var locationTemp LocationTemp
+		locationTemp.City = v.City
+		locationTemp.State = v.State
+		locationTemp.Country = v.Country
+		locationTemp.TempF = fmt.Sprintf("%.f", v.Temperature)
+		locationTemp.TempC = fmt.Sprintf("%.f", (v.Temperature-32)*5/9)
+		locationTemps = append(locationTemps, locationTemp)
+	}
 
-	weather.Templates.Main.Execute(w, r, nil)
+	weather.Templates.Main.Execute(w, r, &Data{Locations: locationTemps})
 }
 
 func (weather *Weather) Cities(w http.ResponseWriter, r *http.Request) {

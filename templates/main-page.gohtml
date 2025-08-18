@@ -1,15 +1,12 @@
 {{ define "content" }}
     {{ if .Locations }}
         {{ range .Locations}}
-            <div class="">
-                <div class="flex-shrink bg-gray-100 p-4 rounded shadow mb-4">
-                    <div>{{ .City }}</div>
-                    <div>{{ .State }}</div>
-                    <div>{{ .Country }}</div>
-                    <div>{{ .TempF }}</div>
-                    <div>{{ .TempC }}</div>
+                <div class="bg-gray-100 p-4 rounded shadow mb-4 inline-block w-auto m-4">
+                    <div class="font-bold text-xl">{{ .City }}</div>
+                    <div class="text-xs">{{ .State }}, {{ .Country }}</div>
+                    <div>{{ .TempF }}&#176;F</div>
+                    <div>{{ .TempC }}&#176;C</div>
                 </div>
-            </div>
         {{ end }}
     {{end}}
 {{ end }}

@@ -36,7 +36,7 @@ func main() {
 		// for now since app won't work without a config, just panic
 		panic(err)
 	}
-	logger.Info(fmt.Sprintf(conf.String()))
+	logger.Info(conf.String())
 	weatherAPI := &models.OpenWeatherAPI{Logger: logger, APIKey: conf.WeatherAPI.Key}
 	weatherService := &models.WeatherService{DB: db, Logger: logger}
 	weatherController, err := controllers.NewWeather(logger, weatherAPI, weatherService)

@@ -21,13 +21,13 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	db, err := sql.Open("sqlite3", "w.db")
 	if err != nil {
-		slog.Error("Failed to open database", slog.Any("error", err))
+		logger.Error("Failed to open database", slog.Any("error", err))
 		panic(fmt.Errorf("Failed to open database: %w", err))
 	}
-	goose.SetDialect("sqlite3")
 	goose.SetLogger(&SlogGooseLogger{Logger: logger})
+	goose.SetDialect("sqlite3")
 	if err := goose.Up(db, "migrations"); err != nil {
-		slog.Error("Failed to up migrations", slog.Any("error", err))
+		logger.Error("Failed to up migrations", slog.Any("error", err))
 		panic(fmt.Errorf("Failed to up migrations: %w", err))
 	}
 	logger.Info("Personal Weather start")
@@ -36,7 +36,7 @@ func main() {
 		// for now since app won't work without a config, just panic
 		panic(err)
 	}
-	logger.Info(conf.String())
+	logger.Info("Configuration loaded", "config", conf.String())
 	weatherAPI := &models.OpenWeatherAPI{Logger: logger, APIKey: conf.WeatherAPI.Key}
 	weatherService := &models.WeatherService{DB: db, Logger: logger}
 	weatherController, err := controllers.NewWeather(logger, weatherAPI, weatherService)

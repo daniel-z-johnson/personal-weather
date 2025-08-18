@@ -1,9 +1,13 @@
 {{ define "content" }}
     {{ if .Locations }}
         {{ range .Locations}}
-                <div class="bg-gray-100 p-4 rounded shadow mb-4 inline-block w-auto m-4">
+                <div class="bg-gray-100 p-4 rounded-xl shadow mb-4 inline-block m-4">
                     <div class="font-bold text-xl">{{ .City }}</div>
-                    <div class="text-xs">{{ .State }}, {{ .Country }}</div>
+                    {{ if .State }}
+                        <div class="text-xs">{{ .State }}, {{ .Country }}</div>
+                            {{ else }}
+                        <div class="text-xs">{{ .Country }}</div>
+                    {{ end }}
                     <div>{{ .TempF }}&#176;F</div>
                     <div>{{ .TempC }}&#176;C</div>
                 </div>

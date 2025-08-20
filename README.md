@@ -6,7 +6,6 @@ A Go web application that allows you to track current weather conditions for mul
 
 - 🌍 Add cities from anywhere in the world using city search
 - 🌡️ View current temperatures in both Fahrenheit and Celsius  
-- 📊 Automatic temperature updates with expiration tracking
 - 🎨 Clean, responsive web interface with Tailwind CSS
 - 🗄️ SQLite database for persistent city storage
 - 🐳 Docker support for easy deployment
@@ -61,17 +60,10 @@ go mod download
 ### Local Development
 
 ```bash
-go run main.go
+go run .
 ```
 
 The application will start on `http://localhost:1117`
-
-### Production Build
-
-```bash
-go build -o personal-weather
-./personal-weather
-```
 
 ### Docker
 

@@ -1,0 +1,11 @@
+{
+    "weatherAPI": {
+        "key": "API KEY"
+    },
+    "server": {
+        "port": "1117"
+    },
+    "database": {
+        "path": "w.db"
+    }
+}

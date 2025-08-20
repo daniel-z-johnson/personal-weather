@@ -19,7 +19,31 @@ import (
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	db, err := sql.Open("sqlite3", "w.db")
+	
+	conf, err := config.LoadConfig("config.json")
+	if err != nil {
+		// Try to create a basic config from environment variables if file doesn't exist
+		conf = &config.Config{}
+		if apiKey := os.Getenv("WEATHER_API_KEY"); apiKey != "" {
+			conf.WeatherAPI.Key = apiKey
+		} else {
+			// for now since app won't work without a config, just panic
+			panic(fmt.Errorf("config file not found and WEATHER_API_KEY not set: %w", err))
+		}
+		if port := os.Getenv("PORT"); port != "" {
+			conf.Server.Port = port
+		} else {
+			conf.Server.Port = "1117"
+		}
+		if dbPath := os.Getenv("DATABASE_PATH"); dbPath != "" {
+			conf.Database.Path = dbPath
+		} else {
+			conf.Database.Path = "w.db"
+		}
+	}
+	logger.Info("Configuration loaded", "config", conf.String())
+	
+	db, err := sql.Open("sqlite3", conf.Database.Path)
 	if err != nil {
 		logger.Error("Failed to open database", slog.Any("error", err))
 		panic(fmt.Errorf("Failed to open database: %w", err))
@@ -31,12 +55,6 @@ func main() {
 		panic(fmt.Errorf("Failed to up migrations: %w", err))
 	}
 	logger.Info("Personal Weather start")
-	conf, err := config.LoadConfig("config.json")
-	if err != nil {
-		// for now since app won't work without a config, just panic
-		panic(err)
-	}
-	logger.Info("Configuration loaded", "config", conf.String())
 	weatherAPI := &models.OpenWeatherAPI{Logger: logger, APIKey: conf.WeatherAPI.Key}
 	weatherService := &models.WeatherService{DB: db, Logger: logger}
 	weatherController, err := controllers.NewWeather(logger, weatherAPI, weatherService)
@@ -54,8 +72,10 @@ func main() {
 	r.Get("/cities", weatherController.Cities)
 	r.Post("/cities", weatherController.FindCities)
 	r.Post("/addCity", weatherController.AddCity)
+	r.Post("/deleteCity", weatherController.DeleteCity)
+	r.Get("/health", weatherController.Health)
 
-	if err := http.ListenAndServe(":1117", r); err != nil {
+	if err := http.ListenAndServe(":"+conf.Server.Port, r); err != nil {
 		logger.Error("Failed to start server", slog.Any("error", err))
 		panic(fmt.Errorf("Failed to start server: %w", err))
 	}

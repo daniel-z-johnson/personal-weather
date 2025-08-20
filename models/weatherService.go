@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 )
@@ -121,5 +122,26 @@ func (ws *WeatherService) UpdateLocation(id int, temp float64) error {
 		return err
 	}
 	ws.Logger.Info("Location updated successfully", slog.Int("id", id))
+	return nil
+}
+
+func (ws *WeatherService) DeleteLocation(city, state, country string) error {
+	query := `DELETE FROM locations WHERE city = ? AND state = ? AND country = ?`
+	result, err := ws.DB.Exec(query, city, state, country)
+	if err != nil {
+		ws.Logger.Error("Failed to delete location", slog.String("city", city), slog.String("state", state),
+			slog.String("country", country), slog.String("error", err.Error()))
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		ws.Logger.Error("Failed to get rows affected for delete", slog.String("error", err.Error()))
+		return err
+	}
+	if rowsAffected == 0 {
+		ws.Logger.Warn("No location found to delete", slog.String("city", city), slog.String("state", state), slog.String("country", country))
+		return fmt.Errorf("location not found")
+	}
+	ws.Logger.Info("Location deleted successfully", slog.String("city", city), slog.String("state", state), slog.String("country", country))
 	return nil
 }

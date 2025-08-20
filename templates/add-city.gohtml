@@ -1,4 +1,11 @@
 {{ define "content" }}
+    {{ range (errors) }}
+        <div class="mx-auto max-w-md py-4">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {{ . }}
+            </div>
+        </div>
+    {{ end }}
     <div class="py-12 flex justify-center">
         <div class="px-8 py-8 bg-white rounded shadow">
             <form action="/cities" method="post">

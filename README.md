@@ -186,6 +186,8 @@ This project is available under the MIT License. See the LICENSE file for detail
 4. Add tests if applicable
 5. Submit a pull request
 
+**Note**: The maintainer may not actively review or approve pull requests. For ongoing development, it's recommended to continue work on your own fork.
+
 ## Support
 
 For issues and questions:

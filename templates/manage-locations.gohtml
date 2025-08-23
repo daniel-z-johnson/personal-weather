@@ -1,0 +1,43 @@
+{{ define "content" }}
+    <div class="py-12 flex justify-center">
+        <div class="px-8 py-8 bg-white rounded shadow max-w-4xl w-full">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Manage Locations</h2>
+            
+            {{ if .Locations }}
+                <div class="space-y-4">
+                    {{ range .Locations }}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex-grow">
+                                <div class="font-semibold text-lg">{{ .City }}</div>
+                                <div class="text-sm text-gray-600">
+                                    {{ if .State }}
+                                        {{ .State }}, {{ .Country }}
+                                    {{ else }}
+                                        {{ .Country }}
+                                    {{ end }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ .TempF }}°F ({{ .TempC }}°C)
+                                </div>
+                            </div>
+                            <form action="/deleteLocation" method="post" style="display: inline;">
+                                <input type="hidden" name="id" value="{{ .ID }}" />
+                                <button 
+                                    type="submit" 
+                                    onclick="return confirm('Are you sure you want to delete {{ .City }}?')"
+                                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-semibold">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    {{ end }}
+                </div>
+            {{ else }}
+                <div class="text-center py-8">
+                    <p class="text-gray-600 text-lg">No locations saved yet.</p>
+                    <p class="text-gray-500 mt-2">Go to <a href="/cities" class="text-blue-600 hover:text-blue-800 font-semibold">Cities</a> to add your first location.</p>
+                </div>
+            {{ end }}
+        </div>
+    </div>
+{{ end }}

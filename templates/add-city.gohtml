@@ -1,59 +1,76 @@
 {{ define "content" }}
-    <div class="py-12 flex justify-center">
-        <div class="px-8 py-8 bg-white rounded shadow">
-            <form action="/cities" method="post">
-                <div class="py-2">
-                    <label for="city" class="text-sm font-semibold text-gray-800">
-                        City
-                    </label>
-                    <input name="city" id="city" type="text" required
-                           class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded"
-                           value="{{ .Form.City }}"/>
-                </div>
-                <div class="py-2">
-                    <label for="state" class="text-sm font-semibold text-gray-800">
-                        State code (US only)
-                    </label>
-                    <input name="state" id="state" type="text"
-                           class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded"
-                           value="{{ .Form.State }}"/>
-                </div>
-                <div class="py-2">
-                    <label for="country" class="text-sm font-semibold text-gray-800">
-                        Country code (2 letter ISO 3166-1 alpha-2)
-                    </label>
-                    <input name="country" id="country" type="text"
-                           class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded"
-                           value="{{ .Form.Country }}"/>
-                </div>
-                <div class="py-4">
-                    <button
-                            type="submit"
-                            class="w-full py-4 px-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold text-lg">
-                        Add city
+    <div class="py-8 flex justify-center">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Add a New City</h1>
+                
+                <form action="/cities" method="post">
+                    <div class="mb-4">
+                        <label for="city" class="block text-sm font-semibold text-gray-800 mb-2">
+                            City *
+                        </label>
+                        <input name="city" id="city" type="text" required
+                               class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                               placeholder="Enter city name"
+                               value="{{ .Form.City }}"/>
+                    </div>
+                    <div class="mb-4">
+                        <label for="state" class="block text-sm font-semibold text-gray-800 mb-2">
+                            State Code
+                        </label>
+                        <input name="state" id="state" type="text"
+                               class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                               placeholder="e.g. CA (US only)"
+                               value="{{ .Form.State }}"/>
+                        <p class="text-xs text-gray-500 mt-1">Optional - for US cities only</p>
+                    </div>
+                    <div class="mb-6">
+                        <label for="country" class="block text-sm font-semibold text-gray-800 mb-2">
+                            Country Code
+                        </label>
+                        <input name="country" id="country" type="text"
+                               class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                               placeholder="e.g. US, CA, GB"
+                               value="{{ .Form.Country }}"/>
+                        <p class="text-xs text-gray-500 mt-1">Optional - 2 letter ISO code</p>
+                    </div>
+                    <button type="submit"
+                            class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        Search Cities
                     </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     {{ if .Locations }}
-        <div class="py-12 flex justify-center">
-            <div class="px-8 py-8 bg-white rounded shadow">
-
+        <div class="py-8 flex justify-center">
+            <div class="w-full max-w-2xl">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Select a City to Add</h2>
+                
                 {{ range .Locations }}
-                    <div class="px-8 py-4 bg-white rounded shadow mt-4">
+                    <div class="bg-white rounded-lg shadow-md mb-4 p-6 border border-gray-200 hover:shadow-lg transition-shadow">
                         <form action="/addCity" method="post">
-                            <label for="city" class="text-sm font-semibold text-gray-800">City</label>
-                            <input name="city" id="city" type="text" class="" value="{{ .City}}" />
-                            <label for="state" class="text-sm font-semibold text-gray-800">State</label>
-                            <input name="state" id="state" type="text" class="" value="{{ .State}}" />
-                            <label for="country" class="text-sm font-semibold text-gray-800">Country</label>
-                            <input name="country" id="country" type="text" class="" value="{{ .Country}}" />
-                            <label for="latitude" class="text-sm font-semibold text-gray-800">Latitude</label>
-                            <input name="latitude" id="latitude" type="text" class="" value="{{ .Latitude}}" />
-                            <label for="longitude" class="text-sm font-semibold text-gray-800">Longitude</label>
-                            <input name="longitude" id="longitude" type="text" class="" value="{{ .Longitude}}" />
-                            <button type="submit" class="py-4 px-2 bg-green-600 hover:bg-green-900 text-white rounded font-bold text-lg">Add This One</button>
+                            <!-- User-visible information -->
+                            <div class="mb-4">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                                    {{ .City }}{{ if .State }}, {{ .State }}{{ end }}
+                                </h3>
+                                <p class="text-gray-600">
+                                    {{ .Country }}{{ if .State }} ({{ .State }}){{ end }}
+                                </p>
+                            </div>
+                            
+                            <!-- Hidden form fields for submission -->
+                            <input name="city" type="hidden" value="{{ .City}}" />
+                            <input name="state" type="hidden" value="{{ .State}}" />
+                            <input name="country" type="hidden" value="{{ .Country}}" />
+                            <input name="latitude" type="hidden" value="{{ .Latitude}}" />
+                            <input name="longitude" type="hidden" value="{{ .Longitude}}" />
+                            
+                            <button type="submit" 
+                                    class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                                Add This City
+                            </button>
                         </form>
                     </div>
                 {{ end }}

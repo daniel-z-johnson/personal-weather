@@ -36,3 +36,6 @@ config.json
 *.svg
 
 w.db
+
+# Build artifacts
+personal-weather

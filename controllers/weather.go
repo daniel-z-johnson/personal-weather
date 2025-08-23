@@ -14,8 +14,9 @@ type Weather struct {
 	openWeatherAPI *models.OpenWeatherAPI
 	weatherSerivce *models.WeatherService
 	Templates      struct {
-		Main   Template
-		Cities Template
+		Main    Template
+		Cities  Template
+		Manage  Template
 	}
 }
 
@@ -28,6 +29,7 @@ type LocationPageData struct {
 }
 
 type LocationTemp struct {
+	ID      int
 	City    string
 	State   string
 	Country string
@@ -75,6 +77,7 @@ func (weather *Weather) Main(w http.ResponseWriter, r *http.Request) {
 	locationTemps := make([]LocationTemp, 0)
 	for _, v := range allLocations {
 		var locationTemp LocationTemp
+		locationTemp.ID = v.ID
 		locationTemp.City = v.City
 		locationTemp.State = v.State
 		locationTemp.Country = v.Country
@@ -154,4 +157,56 @@ func (weather *Weather) FindCities(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	weather.Templates.Cities.Execute(w, r, &data)
+}
+
+func (weather *Weather) Manage(w http.ResponseWriter, r *http.Request) {
+	type Data struct {
+		Locations []LocationTemp
+	}
+	allLocations, err := weather.weatherSerivce.GetAll()
+	if err != nil {
+		weather.logger.Error("Failed to get all locations for manage page", slog.Any("error", err))
+		weather.Templates.Manage.Execute(w, r, nil, fmt.Errorf("server issue try again later"))
+		return
+	}
+	locationTemps := make([]LocationTemp, 0)
+	for _, v := range allLocations {
+		var locationTemp LocationTemp
+		locationTemp.ID = v.ID
+		locationTemp.City = v.City
+		locationTemp.State = v.State
+		locationTemp.Country = v.Country
+		locationTemp.TempF = fmt.Sprintf("%.f", v.Temperature)
+		locationTemp.TempC = fmt.Sprintf("%.f", (v.Temperature-32)*5/9)
+		locationTemps = append(locationTemps, locationTemp)
+	}
+
+	weather.Templates.Manage.Execute(w, r, &Data{Locations: locationTemps})
+}
+
+func (weather *Weather) DeleteLocation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		weather.logger.Error("Failed to parse form", slog.Any("error", err))
+		weather.Templates.Manage.Execute(w, r, nil, fmt.Errorf("Server issue try again later"))
+		return
+	}
+	
+	idStr := r.FormValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		weather.logger.Error("Failed to parse location ID", slog.Any("error", err), slog.String("id", idStr))
+		weather.Templates.Manage.Execute(w, r, nil, fmt.Errorf("Invalid location ID"))
+		return
+	}
+	
+	err = weather.weatherSerivce.DeleteLocation(id)
+	if err != nil {
+		weather.logger.Error("Failed to delete location", slog.Any("error", err), slog.Int("id", id))
+		weather.Templates.Manage.Execute(w, r, nil, fmt.Errorf("Failed to delete location"))
+		return
+	}
+	
+	// Redirect back to manage page after successful deletion
+	http.Redirect(w, r, "/manage", http.StatusFound)
 }

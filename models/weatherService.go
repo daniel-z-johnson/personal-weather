@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 )
@@ -13,7 +14,7 @@ type WeatherService struct {
 }
 
 type Location struct {
-	id          int
+	ID          int
 	City        string
 	State       string
 	Country     string
@@ -85,7 +86,7 @@ func (ws *WeatherService) GetAllExpired() ([]GeoLocation, error) {
 }
 
 func (ws *WeatherService) GetAll() ([]Location, error) {
-	query := `SELECT city, state, country, latitude, longitude, temp  FROM locations`
+	query := `SELECT id, city, state, country, latitude, longitude, temp  FROM locations`
 	rows, err := ws.DB.Query(query)
 	if err != nil {
 		ws.Logger.Error("Failed to get all locations", slog.String("error", err.Error()))
@@ -96,7 +97,7 @@ func (ws *WeatherService) GetAll() ([]Location, error) {
 	locations := make([]Location, 0)
 	for rows.Next() {
 		var loc Location
-		err := rows.Scan(&loc.City, &loc.State, &loc.Country, &loc.Latitude, &loc.Longitude, &loc.Temperature)
+		err := rows.Scan(&loc.ID, &loc.City, &loc.State, &loc.Country, &loc.Latitude, &loc.Longitude, &loc.Temperature)
 		if err != nil {
 			ws.Logger.Error("Failed to scan location row", slog.String("error", err.Error()))
 			return nil, err
@@ -121,5 +122,25 @@ func (ws *WeatherService) UpdateLocation(id int, temp float64) error {
 		return err
 	}
 	ws.Logger.Info("Location updated successfully", slog.Int("id", id))
+	return nil
+}
+
+func (ws *WeatherService) DeleteLocation(id int) error {
+	query := `DELETE FROM locations WHERE id = ?`
+	result, err := ws.DB.Exec(query, id)
+	if err != nil {
+		ws.Logger.Error("Failed to delete location", slog.Int("id", id), slog.String("error", err.Error()))
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		ws.Logger.Error("Failed to get rows affected after delete", slog.Int("id", id), slog.String("error", err.Error()))
+		return err
+	}
+	if rowsAffected == 0 {
+		ws.Logger.Warn("No location found to delete", slog.Int("id", id))
+		return fmt.Errorf("no location found with id %d", id)
+	}
+	ws.Logger.Info("Location deleted successfully", slog.Int("id", id))
 	return nil
 }

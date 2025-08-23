@@ -48,12 +48,16 @@ func main() {
 		views.Must(views.ParseFS(templates.FS, logger, "main-layout.gohtml", "main-page.gohtml"))
 	weatherController.Templates.Cities =
 		views.Must(views.ParseFS(templates.FS, logger, "main-layout.gohtml", "add-city.gohtml"))
+	weatherController.Templates.Manage =
+		views.Must(views.ParseFS(templates.FS, logger, "main-layout.gohtml", "manage-locations.gohtml"))
 
 	r := chi.NewRouter()
 	r.Get("/", weatherController.Main)
 	r.Get("/cities", weatherController.Cities)
 	r.Post("/cities", weatherController.FindCities)
 	r.Post("/addCity", weatherController.AddCity)
+	r.Get("/manage", weatherController.Manage)
+	r.Post("/deleteLocation", weatherController.DeleteLocation)
 
 	if err := http.ListenAndServe(":1117", r); err != nil {
 		logger.Error("Failed to start server", slog.Any("error", err))
